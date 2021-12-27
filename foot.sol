@@ -1,4 +1,11 @@
 
+
+/**
+ *Submitted for verification at Etherscan.io on 2021-02-17
+*/
+
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.0;
 
 library SafeMath {
@@ -141,21 +148,34 @@ contract Foot is Ownable, StandardToken {
 
   // Wallet for the tokens to be sold, and receive ETH
   address payable public salesWallet;
+  address payable public privateWallet;
+
+  uint256 public soldOnPrivateSale;
+  // TODO replace with actual numbers
+  uint256 public PRIVATE_SALE_START = 1642204800;
+  uint256 public PRIVATE_SALE_END = 1643587200;
+  uint256 public constant PRIVATESALE_WEI_FACTOR = 200000;
+  uint256 public constant PRIVATESALE_HARDCAP = 2500000 ether;
+
   uint256 public soldOnCrowdSale;
   // TODO replace with actual numbers
-  uint256 public crowdsaleStart = 1613926800;
-  uint256 public crowdsaleEnd = 1634556740;
-  uint256 public constant CROWDSALE_WEI_FACTOR = 15000;
+  uint256 public CROWD_SALE_START = 1643587200;
+  uint256 public constant CROWD_SALE_END = 1644883200;
+  uint256 public constant CROWDSALE_WEI_FACTOR = 100000;
   uint256 public constant CROWDSALE_HARDCAP = 7500000 ether;
 
   constructor() {
     _totalSupply = 310000000 ether;
 
     // Base date to calculate team, marketing and platform tokens lock
-    uint256 lockStartDate = 1622490778;
+    uint256 lockStartDate =
+//    1613494800;
+      1622490778;
 
     // Team wallet - 12500000 tokens
     // 0 tokens free, 12500000 tokens locked - progressive release of 5% every 30 days (after 180 days of waiting period)
+//    address team = 0xf1D3cE2B941CDb7b6F61394a41F04C24E738D3A5;
+//    address team = 0x78D921F8D3410583A573D87A9257cb15efe11C01; // for tests
     address team = 0xc9329F122f8B6d086b1531bc074936367b3e647B; // for Ropsten
     balances[team] = 12500000 ether;
     timeLocks[team] = TimeLock(12500000 ether, 12500000 ether, uint128(lockStartDate + (180 days)), 30 days, 625000);
@@ -163,6 +183,8 @@ contract Foot is Ownable, StandardToken {
 
     // Marketing wallet - 5000000 tokens
     // 1000000 tokens free, 4000000 tokens locked - progressive release of 5% every 30 days
+//    address marketingWallet = 0xD38FbAaF200D32fd86173742bbEE8dD5f83D6715;
+//    address marketingWallet = 0x28333236cfe9e4Da5010c22d601eA8E5cf6Ea19E; // for tests
     address marketingWallet = 0x9720CEE514484706BC944388422629ed388AeC43; // for Ropsten
     balances[marketingWallet] = 5000000 ether;
     timeLocks[marketingWallet] = TimeLock(4000000 ether, 4000000 ether, uint128(lockStartDate), 30 days, 200000);
@@ -170,28 +192,38 @@ contract Foot is Ownable, StandardToken {
 
     // Game Evolution wallet - 7500000 tokens   - index 6 on ganache
     // 1000000 tokens free, 6500000 tokens locked - progressive release of 5% every 30 days
+//    address gameEvolutionWallet = 0x3Ac2cffc9B7F3Bf0FEbB9674e2D3AE2495a717A2;
+//    address gameEvolutionWallet = 0x5BD300D7c09DDA52719494607A8b06c405702A16; // for tests
     address gameEvolutionWallet = 0xcc8d076CA1A21e5Bff6946401f3ACa1ee5Bf17C7; // for Ropsten
     balances[gameEvolutionWallet] = 7500000 ether;
     timeLocks[gameEvolutionWallet] = TimeLock(6500000 ether, 6500000 ether, uint128(lockStartDate), 30 days, 325000);
     emit Transfer(address(0x0), gameEvolutionWallet, balances[gameEvolutionWallet]);
 
     // Private sale wallet - 2500000 tokens
-    address privateWallet = 0x12Cfba593A423bda2ab8F3C9691691c66d8380d8; // for Ropsten
+//    privateWallet = payable(0x9C5f8788394cc01546782505159A6360d80e3fB5);
+//    privateWallet = payable(0x80575E774B954a717c1E600723AC6945551afB43); // for tests
+    privateWallet = payable(0x12Cfba593A423bda2ab8F3C9691691c66d8380d8); // for Ropsten
     balances[privateWallet] = 2500000 ether;
     emit Transfer(address(0x0), privateWallet, balances[privateWallet]);
 
     // Sales wallet, holds Pre-Sale balance - 7500000 tokens
+//    salesWallet = payable(0x22beD7D43a368ca5519Afd66C4a666da00D9b333);
+//    salesWallet = payable(0x5444d73Ad838712D8542f5b50d71D0834a7634cd); // for tests
     salesWallet = payable(0x6608c0c336BcDD38dEae1e998488E0C7fe017eae); // for Ropsten
     balances[salesWallet] = 7500000 ether;
     emit Transfer(address(0x0), salesWallet, balances[salesWallet]);
 
     // Exchanges - 25000000 tokens
+//    address exchanges = 0x59682aa9effa9B8Cbd8c2A90df6a77271fB48fd1;
+//    address exchanges = 0xFaDE135cdc959C9f4a7DD93f0e5BF1d4ffe432FB; //for tests
     address exchanges = 0x1EC6D9DEa414aF6775Ae060162e9338abdb0A187; //for Ropsten
     balances[exchanges] = 25000000 ether;
     emit Transfer(address(0x0), exchanges, balances[exchanges]);
 
     // Platform wallet - 200000000 tokens
     // 50000000 tokens free, 150000000 tokens locked - progressive release of 25000000 every 90 days
+//    address platformWallet = 0x4106F3BFE6Fd8fFAd3e2d12601305fE6E87506a7;
+//    address platformWallet = 0x520Ee868857A9D6E936525602313c301a559F84E; // for tests
     address platformWallet = 0x16D741FBBbbD1aBFB71F892AFc5d8C6682d1fbda; // for Ropsten
     balances[platformWallet] = 200000000 ether;
     timeLocks[platformWallet] = TimeLock(150000000 ether, 150000000 ether, uint128(lockStartDate), 90 days, 25000000);
@@ -199,11 +231,7 @@ contract Foot is Ownable, StandardToken {
   }
 
   function setPublicSaleStartDate(uint256 newStartTimestamp) public onlyOwner {
-      crowdsaleStart = newStartTimestamp;
-  }
-  
-  function setPublicSaleStartDate(uint256 newEndTimestamp) public onlyOwner {
-      crowdsaleStart = newStartTimestamp;
+      CROWD_SALE_START = newStartTimestamp;
   }
 
   function transfer(address _to, uint256 _value) override public returns (bool success) {
@@ -283,7 +311,7 @@ contract Foot is Ownable, StandardToken {
   }
 
   function buy() public payable {
-    require((block.timestamp > crowdsaleStart) && (block.timestamp < crowdsaleEnd), "Contract is not selling tokens");
+    require((block.timestamp > CROWD_SALE_START) && (block.timestamp < CROWD_SALE_END), "Contract is not selling tokens");
     uint weiValue = msg.value;
     require(weiValue >= (5 * (10 ** 16)), "Minimum amount is 0.05 eth");
     require(weiValue <= (20 ether), "Maximum amount is 20 eth");
@@ -297,11 +325,42 @@ contract Foot is Ownable, StandardToken {
   }
 
   function burnUnsold() public onlyOwner {
-    require(block.timestamp > crowdsaleEnd);
+    require(block.timestamp > CROWD_SALE_END);
     uint currentBalance = balances[salesWallet];
     balances[salesWallet] = 0;
     _totalSupply = _totalSupply.sub(currentBalance);
     emit Burn(salesWallet, currentBalance);
+  }
+
+  function buyPrivate() public payable {
+    require((block.timestamp > PRIVATE_SALE_START) && (block.timestamp < PRIVATE_SALE_END), "Contract is not selling tokens");
+    uint weiValue = msg.value;
+    require(weiValue >= (5 * (10 ** 16)), "Minimum amount is 0.05 eth");
+    require(weiValue <= (20 ether), "Maximum amount is 20 eth");
+    uint amount = PRIVATESALE_WEI_FACTOR * weiValue;
+    require((soldOnPrivateSale) <= (PRIVATESALE_HARDCAP), "That quantity is not available");
+    soldOnPrivateSale += amount;
+    if ((balances[privateWallet].sub(amount)) < ((5 * (10 ** 16)) * PRIVATESALE_WEI_FACTOR)) {
+      amount = balances[privateWallet];
+      CROWD_SALE_START = block.timestamp;
+      PRIVATE_SALE_END = block.timestamp;
+    }
+    balances[privateWallet] = balances[privateWallet].sub(amount);
+    balances[msg.sender] = balances[msg.sender].add(amount);
+    require(privateWallet.send(weiValue));
+    emit Transfer(privateWallet, msg.sender, amount);
+  }
+
+  function burnUnsoldPrivate() public onlyOwner {
+    require(block.timestamp > PRIVATE_SALE_END);
+    uint currentBalance = balances[privateWallet];
+    balances[privateWallet] = 0;
+    _totalSupply = _totalSupply.sub(currentBalance);
+    emit Burn(privateWallet, currentBalance);
+  }
+
+  function saleDetails() public view returns (uint256 publicSaleStart, uint256 publicSaleEnd, uint256 privateSaleStart, uint256 privateSaleEnd, uint256 soldOnPublic, uint256 soldOnPrivate) {
+    return (CROWD_SALE_START, CROWD_SALE_END, PRIVATE_SALE_START, PRIVATE_SALE_END, soldOnCrowdSale, soldOnPrivateSale);
   }
 
 }
